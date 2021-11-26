@@ -180,6 +180,18 @@ const steelDefense = new Map<Types, number>([
   ["fairy", 0.5],
 ]);
 
+const rockDefense = new Map<Types, number>([
+  ["normal", 0.5],
+  ["fire", 0.5],
+  ["water", 2],
+  ["grass", 2],
+  ["fighting", 2],
+  ["poison", 0.5],
+  ["ground", 2],
+  ["flying", 0.5],
+  ["steel", 2],
+]);
+
 export const defenseChart = new Map<Types, Map<Types, number>>([
   ["normal", normalDefense],
   ["fire", fireDefense],
@@ -198,4 +210,46 @@ export const defenseChart = new Map<Types, Map<Types, number>>([
   ["dark", darkDefense],
   ["fairy", fairyDefense],
   ["steel", steelDefense],
+  ["rock", rockDefense],
 ]);
+
+export type TType = [Types, number];
+export type TypeChart = Map<Types, Map<Types, number>>;
+
+export const asType = ([type]: TType) => type;
+export const getValueLte =
+  (value: number) =>
+  ([_, v]: TType) =>
+    v <= value;
+export const getValueGte =
+  (value: number) =>
+  ([_, v]: TType) =>
+    v >= value;
+
+export function unique<T>(items: T[]) {
+  return [...new Set(items)];
+}
+
+export const byNonType = (except: Types[]) => (type: Types) =>
+  !except.includes(type);
+
+export const byNonIntersection = (types: Types[]) => (type: Types) =>
+  !types.includes(type);
+
+export const some = (...bools: boolean[]) => bools.some(Boolean);
+
+export const defChart = (typeChart: TypeChart) => (type: Types) => {
+  return Array.from(typeChart.get(type)?.entries() ?? []);
+};
+
+export const baseTypes = {
+  asType,
+  getValueLte,
+  getValueGte,
+  unique,
+  byNonType,
+  byNonIntersection,
+  some,
+  defChart,
+  defenseChart,
+};
