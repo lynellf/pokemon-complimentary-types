@@ -214,27 +214,29 @@ export const defenseChart = new Map<Types, Map<Types, number>>([
 ]);
 
 export type TType = [Types, number];
+
 export type TypeChart = Map<Types, Map<Types, number>>;
 
-export const asType = ([type]: TType) => type;
+export const asType = <T>([type]: [T, number]) => type;
+
 export const getValueLte =
-  (value: number) =>
-  ([_, v]: TType) =>
+  <T>(value: number) =>
+  ([_, v]: [T, number]) =>
     v <= value;
+
 export const getValueGte =
-  (value: number) =>
-  ([_, v]: TType) =>
+  <T>(value: number) =>
+  ([_, v]: [T, number]) =>
     v >= value;
 
 export function unique<T>(items: T[]) {
   return [...new Set(items)];
 }
 
-export const byNonType = (except: Types[]) => (type: Types) =>
-  !except.includes(type);
-
-export const byNonIntersection = (types: Types[]) => (type: Types) =>
-  !types.includes(type);
+export const areParallel =
+  <T>(items: T[]) =>
+  (item: T) =>
+    !items.includes(item);
 
 export const some = (...bools: boolean[]) => bools.some(Boolean);
 
@@ -247,8 +249,8 @@ export const baseTypes = {
   getValueLte,
   getValueGte,
   unique,
-  byNonType,
-  byNonIntersection,
+  byNonType: areParallel,
+  byNonIntersection: areParallel,
   some,
   defChart,
   defenseChart,
