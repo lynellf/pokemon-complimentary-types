@@ -1,42 +1,123 @@
-import type { Types } from "./types";
+import type { Types as MonsterType } from "./types";
 
-type TypeChart = Map<Types, Map<Types, number>>;
-type TType = [Types, number];
+type TypeChart = Map<MonsterType, Map<MonsterType, number>>;
+type TType = [MonsterType, number];
 type TByValue = (value: number) => (type: TType) => boolean;
 
+type TGetWeaknesses = (type: MonsterType) => MonsterType[];
+
+type TFrequencyTable = Map<MonsterType, number>;
+
+interface IUserInputDeps {
+  getWeaknesses: TGetWeaknesses;
+}
+
+interface IUserInput {
+  checkUserInput: (
+    userInput: MonsterType[]
+  ) => [boolean, MonsterType[], MonsterType[]];
+}
+
+type TUserInput = (deps: IUserInputDeps) => IUserInput;
+
+interface ITraversalDeps {
+  createNode: (type: MonsterType) => TNodeLiteral;
+  unique: <T>(array: T[]) => T[];
+  intersection: <T>(a: T[], b: T[]) => T[];
+}
+
+interface ITraversal {
+  byCompliment: (
+    results: MonsterType[],
+    weakness: MonsterType
+  ) => MonsterType[];
+  getCompliments: (
+    query: MonsterType,
+    index?: number,
+    queries?: MonsterType[]
+  ) => MonsterType[];
+}
+
+type TTraversal = (deps: ITraversalDeps) => ITraversal;
+
+type TNodeLiteral = Map<
+  "strengths" | "weaknesses" | "resistances" | "resistedBy",
+  MonsterType[]
+>;
+
+interface IStrengthDeps {
+  typeChart: TypeChart;
+}
+interface IStrengths {
+  getStrengths: (type: MonsterType) => MonsterType[];
+  getResistedBy: (type: MonsterType) => MonsterType[];
+}
+
+type TStrengths = (deps: IStrengthDeps) => IStrengths;
+interface IOffenseDeps {
+  typeChart: TypeChart;
+  Strengths: (deps: IStrengthDeps) => IStrengths;
+}
+
+interface IOffense {
+  getStrengths: (type: MonsterType) => MonsterType[];
+  getResistedBy: (type: MonsterType) => MonsterType[];
+}
+
+type TOffense = (deps: IOffenseDeps) => IOffense;
+
+interface INodeDeps {
+  getStrengths: (type: MonsterType) => MonsterType[];
+  getWeaknesses: (type: MonsterType) => MonsterType[];
+  getResistances: (type: MonsterType) => MonsterType[];
+  getResistedBy: (type: MonsterType) => MonsterType[];
+}
+
+interface INode {
+  create: (type: MonsterType) => TNodeLiteral;
+}
+
+type TNode = (deps: INodeDeps) => INode;
+
 interface IWeaknesses {
-  getWeaknesses: (type: Types) => Types[];
-  getAllWeaknesses: (types: Types[]) => Types[];
+  getWeaknesses: (type: MonsterType) => MonsterType[];
+  getAllWeaknesses: (types: MonsterType[]) => MonsterType[];
   byWeakness: (type: TType) => boolean;
-  byUniqueWeakness: (teamWeaknesses: Types[]) => (type: Types) => boolean;
+  byUniqueWeakness: (
+    teamWeaknesses: MonsterType[]
+  ) => (type: MonsterType) => boolean;
+  getCompliments: (type: MonsterType) => MonsterType[];
 }
 
 interface IResistances {
-  getResistances: (type: Types) => Types[];
+  getResistances: (type: MonsterType) => MonsterType[];
   byResistance: (type: TType) => boolean;
-  asResistance: (query: Types) => Types[];
+  asResistance: (query: MonsterType) => MonsterType[];
 }
 
 interface IDefense {
-  getResistances: (type: Types) => Types[];
-  getWeaknesses: (type: Types) => Types[];
-  getAllWeaknesses: (types: Types[]) => Types[];
-  byTotalResistances: (typeA: Types, typeB: Types) => number;
-  asResistance: (query: Types) => Types[];
-  byUniqueWeakness: (teamWeaknesses: Types[]) => (type: Types) => boolean;
+  getResistances: (type: MonsterType) => MonsterType[];
+  getWeaknesses: (type: MonsterType) => MonsterType[];
+  getAllWeaknesses: (types: MonsterType[]) => MonsterType[];
+  byTotalResistances: (typeA: MonsterType, typeB: MonsterType) => number;
+  asResistance: (query: MonsterType) => MonsterType[];
+  byUniqueWeakness: (
+    teamWeaknesses: MonsterType[]
+  ) => (type: MonsterType) => boolean;
+  getCompliments: (type: MonsterType) => MonsterType[];
 }
 
 interface IResistancesDeps {
-  asType: ([type]: TType) => Types;
-  defChart: (typechart: TypeChart) => (type: Types) => TType[];
+  asType: ([type]: TType) => MonsterType;
+  defChart: (typechart: TypeChart) => (type: MonsterType) => TType[];
   getValueLte: (value: number) => (type: TType) => boolean;
   defenseChart: TypeChart;
 }
 
 interface IWeaknessesDeps {
   getValueGte: (value: number) => (type: TType) => boolean;
-  asType: ([type]: TType) => Types;
-  defChart: (typechart: TypeChart) => (type: Types) => TType[];
+  asType: ([type]: TType) => MonsterType;
+  defChart: (typechart: TypeChart) => (type: MonsterType) => TType[];
   defenseChart: TypeChart;
   unique: <T>(arr: T[]) => T[];
 }
@@ -47,14 +128,15 @@ type TResistances = (deps: IResistancesDeps) => IResistances;
 
 interface IBaseTypesDeps {
   unique: <T>(arr: T[]) => T[];
-  asType: ([type]: TType) => Types;
+  asType: ([type]: TType) => MonsterType;
   getValueGte: TByValue;
   getValueLte: TByValue;
   defenseChart: TypeChart;
-  defChart: (typechart: TypeChart) => (type: Types) => TType[];
-  byNonType: (except: Types[]) => (type: Types) => boolean;
-  byNonIntersection: (types: Types[]) => (type: Types) => boolean;
+  defChart: (typechart: TypeChart) => (type: MonsterType) => TType[];
+  byNonType: (except: MonsterType[]) => (type: MonsterType) => boolean;
+  byNonIntersection: (types: MonsterType[]) => (type: MonsterType) => boolean;
   some: (...bools: boolean[]) => boolean;
+  intersection: <T>(a: T[], b: T[]) => T[];
 }
 
 interface IDefenseDeps {
@@ -64,48 +146,60 @@ interface IDefenseDeps {
 }
 
 type TDefense = (deps: IDefenseDeps) => IDefense;
+interface IOptions {
+  checkInput: boolean;
+}
 
+type TGetIdealTeam = (
+  query: MonsterType[]
+) => [MonsterType[], MonsterType[], MonsterType[]];
 interface ITeamBuilderDeps {
   Weaknesses: TWeaknesses;
   Resistances: TResistances;
+  Strengths: TStrengths;
   Defense: TDefense;
+  Offense: TOffense;
+  Traversal: TTraversal;
+  Node: TNode;
   baseTypes: IBaseTypesDeps;
+  UserInput: TUserInput;
 }
-function TeamBuilder(deps: ITeamBuilderDeps) {
-  const { Weaknesses, Resistances, Defense, baseTypes } = deps;
+function TeamBuilder(deps: ITeamBuilderDeps): TGetIdealTeam {
   const {
-    getAllWeaknesses,
-    asResistance,
-    byTotalResistances,
-    byUniqueWeakness,
-  } = Defense({
+    Weaknesses,
+    Resistances,
+    Defense,
+    baseTypes,
+    Offense,
+    Node,
+    Strengths,
+    Traversal,
+    UserInput,
+  } = deps;
+  const { unique, intersection, defenseChart: typeChart } = baseTypes;
+  const { getWeaknesses, getResistances } = Defense({
     Weaknesses,
     Resistances,
     baseTypes,
   });
-  const { unique, some, byNonIntersection, byNonType } = baseTypes;
-  const getIdealTeam = (query: Types[], teamSize = 6, team = []): Types[] => {
-    const weaknesses = getAllWeaknesses(query);
-    const teamWeaknesses = getAllWeaknesses(team);
-    const compliments = weaknesses
-      .flatMap(asResistance)
-      .sort(byTotalResistances)
-      .filter(byNonType(query))
-      .filter(byNonIntersection(team))
-      .filter(byUniqueWeakness(teamWeaknesses));
-    const newTeamSize = teamSize - 1;
-    const hasCompliments = compliments.length > 0;
+  const { getStrengths, getResistedBy } = Offense({ typeChart, Strengths });
+  const { create: createNode } = Node({
+    getResistances,
+    getWeaknesses,
+    getResistedBy,
+    getStrengths,
+  });
+  const { getCompliments } = Traversal({ createNode, unique, intersection });
+  const { checkUserInput } = UserInput({ getWeaknesses });
 
-    if (some(!hasCompliments, newTeamSize === 0)) {
-      return team;
-    }
-
-    const results = getIdealTeam(compliments, newTeamSize, [
-      ...query,
-      ...team,
-      ...compliments,
-    ]);
-    return unique(results);
+  const getIdealTeam = (
+    query: MonsterType[]
+  ): [MonsterType[], MonsterType[], MonsterType[]] => {
+    const [_isValid, offendingTypes, sharedWeakness] = checkUserInput(query);
+    const results = unique(
+      query.flatMap(getCompliments).flatMap(getCompliments)
+    );
+    return [results, offendingTypes, sharedWeakness];
   };
 
   return getIdealTeam;

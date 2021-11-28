@@ -240,6 +240,10 @@ export const areParallel =
 
 export const some = (...bools: boolean[]) => bools.some(Boolean);
 
+export const intersection = <T>(arr1: T[], arr2: T[]): T[] => {
+  return arr1.filter((item) => arr2.includes(item));
+};
+
 export const defChart = (typeChart: TypeChart) => (type: Types) => {
   return Array.from(typeChart.get(type)?.entries() ?? []);
 };
@@ -254,4 +258,5 @@ export const baseTypes = {
   some,
   defChart,
   defenseChart,
+  intersection,
 };
