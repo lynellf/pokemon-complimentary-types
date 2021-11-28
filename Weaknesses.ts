@@ -15,6 +15,17 @@ const weaknesses = (deps: IGetWeaknessesDeps) => (type: Types) => {
   return weaknesses;
 };
 
+interface IGetComplementsDeps {
+  getWeaknesses: TGetWeaknesses;
+  unique: <T>(arr: T[]) => T[];
+}
+const compliments = (deps: IGetComplementsDeps) => (type: Types) => {
+  const { getWeaknesses, unique } = deps;
+  const weaknesses = getWeaknesses(type);
+  const compliments = weaknesses.flatMap(getWeaknesses);
+  return unique(compliments);
+};
+
 interface IGetAllWeaknessesDeps {
   unique: <T>(arr: T[]) => T[];
   getWeaknesses: (type: Types) => Types[];
@@ -48,6 +59,7 @@ interface IWeaknesses {
   getAllWeaknesses: (types: Types[]) => Types[];
   byWeakness: (type: TType) => boolean;
   byUniqueWeakness: (teamWeaknesses: Types[]) => (type: Types) => boolean;
+  getCompliments: (type: Types) => Types[];
 }
 
 export default (deps: IWeaknessesDeps): IWeaknesses => {
@@ -57,5 +69,12 @@ export default (deps: IWeaknessesDeps): IWeaknesses => {
   const getWeaknesses = weaknesses({ getDefChart, byWeakness, asType });
   const getAllWeaknesses = allWeaknesses({ unique, getWeaknesses });
   const byUniqueWeakness = uniqueWeakness(getWeaknesses);
-  return { getWeaknesses, getAllWeaknesses, byWeakness, byUniqueWeakness };
+  const getCompliments = compliments({ getWeaknesses, unique });
+  return {
+    getWeaknesses,
+    getAllWeaknesses,
+    byWeakness,
+    byUniqueWeakness,
+    getCompliments,
+  };
 };

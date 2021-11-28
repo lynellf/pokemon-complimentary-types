@@ -15,6 +15,7 @@ interface IWeaknesses {
   getAllWeaknesses: (types: Types[]) => Types[];
   byWeakness: (type: TType) => boolean;
   byUniqueWeakness: (teamWeaknesses: Types[]) => (type: Types) => boolean;
+  getCompliments: (type: Types) => Types[];
 }
 
 interface IResistancesDeps {
@@ -73,6 +74,7 @@ interface IDefense {
   byTotalResistances: (typeA: Types, typeB: Types) => number;
   asResistance: (query: Types) => Types[];
   byUniqueWeakness: (teamWeaknesses: Types[]) => (type: Types) => boolean;
+  getCompliments: (type: Types) => Types[];
 }
 
 interface IDefenseDeps {
@@ -99,14 +101,19 @@ export default function (deps: IDefenseDeps): IDefense {
     defChart,
     defenseChart,
   });
-  const { getWeaknesses, getAllWeaknesses, byWeakness, byUniqueWeakness } =
-    Weaknesses({
-      asType,
-      getValueGte,
-      defChart,
-      defenseChart,
-      unique,
-    });
+  const {
+    getWeaknesses,
+    getAllWeaknesses,
+    byWeakness,
+    byUniqueWeakness,
+    getCompliments,
+  } = Weaknesses({
+    asType,
+    getValueGte,
+    defChart,
+    defenseChart,
+    unique,
+  });
   const byTotalResistances = difference({
     getDefChart: defChart(defenseChart),
     byResistance,
@@ -120,5 +127,6 @@ export default function (deps: IDefenseDeps): IDefense {
     byTotalResistances,
     asResistance,
     byUniqueWeakness,
+    getCompliments,
   };
 }

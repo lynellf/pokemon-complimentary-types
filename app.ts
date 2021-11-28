@@ -2,6 +2,11 @@ import Resistances from "./Resistances";
 import Weaknesses from "./Weaknesses";
 import Defense from "./Defense";
 import TeamBuilder from "./TeamBuilder";
+import Offense from "./Offense";
+import Node from "./Node";
+import Traversal from "./Traversal";
+import Strengths from "./Strengths";
+import UserInput from "./UserInput";
 import { baseTypes } from "./types";
 
 const getIdealTeam = TeamBuilder({
@@ -9,10 +14,37 @@ const getIdealTeam = TeamBuilder({
   Resistances,
   Weaknesses,
   Defense,
+  Offense,
+  Node,
+  Traversal,
+  Strengths,
+  UserInput,
 });
 
-// console.log(
-//   Array.from(new Set([...getIdealTeam("fire"), ...getIdealTeam("fighting")])).filter(type => type !== "dark" && type !== 'poison')
-// );
+function main() {
+  const query: any = [
+    // "fire",
+    // "fighting",
+    "water",
+    "flying",
+    // "poison",
+    // "dark",
+    // "grass",
+    // "ice",
+    "psychic",
+    "steel",
+    // "dragon",
+    // "steel",
+  ];
+  const [results, overlap, sharedWeakness] = getIdealTeam(query);
 
-console.log(getIdealTeam(["fire"]));
+  if (overlap.length) {
+    console.log("query:", query);
+    console.log("Overlapping inputs:", overlap);
+    console.log("Shared weakness:", sharedWeakness);
+  }
+
+  console.log(`results:`, results);
+}
+
+main();
