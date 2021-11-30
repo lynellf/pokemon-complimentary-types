@@ -1,7 +1,7 @@
 import type { Types } from "./types";
 
 type TNode = Map<
-  "strengths" | "weaknesses" | "resistances" | "resistedBy",
+  "strengths" | "weaknesses" | "resistances" | "resistedBy" | "self",
   Types[]
 >;
 
@@ -65,7 +65,7 @@ const lookupCompliments =
       return results;
     }
 
-    const nearestCompliment = goodMatchups.find(
+    const nearestCompliments = goodMatchups.filter(
       byNearestGoodMatchup({
         createNode,
         unique,
@@ -74,9 +74,9 @@ const lookupCompliments =
       })
     );
 
-    const hasNearestCompliment = nearestCompliment !== undefined;
+    const hasNearestCompliment = nearestCompliments.length > 0;
 
-    return hasNearestCompliment ? [...results, nearestCompliment] : results;
+    return hasNearestCompliment ? [...results, ...nearestCompliments] : results;
   };
 
 interface IComplimentDeps {
