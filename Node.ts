@@ -1,7 +1,7 @@
 import { Types } from "./types";
 
 type TNode = Map<
-  "strengths" | "weaknesses" | "resistances" | "resistedBy",
+  "strengths" | "weaknesses" | "resistances" | "resistedBy" | "self",
   Types[]
 >;
 
@@ -20,6 +20,7 @@ const node =
   (deps: INodeDeps) =>
   (type: Types): TNode =>
     new Map([
+      ["self", [type]],
       ["resistedBy", deps.getResistedBy(type)],
       ["strengths", deps.getStrengths(type)],
       ["weaknesses", deps.getWeaknesses(type)],

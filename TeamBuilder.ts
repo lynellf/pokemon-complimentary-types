@@ -3,10 +3,48 @@ import type { Types as MonsterType } from "./types";
 type TypeChart = Map<MonsterType, Map<MonsterType, number>>;
 type TType = [MonsterType, number];
 type TByValue = (value: number) => (type: TType) => boolean;
-
 type TGetWeaknesses = (type: MonsterType) => MonsterType[];
 
-type TFrequencyTable = Map<MonsterType, number>;
+interface IDualTypeTraversalDeps {
+  byCompliment: (
+    results: MonsterType[],
+    weakness: MonsterType
+  ) => MonsterType[];
+  createMergedNode: (query: MonsterType[]) => TNodeLiteral;
+}
+
+interface IDualTypeTraversal {
+  getCompliments: (
+    query: MonsterType[],
+    index?: number,
+    queries?: MonsterType[][]
+  ) => MonsterType[];
+}
+
+type TDualTypeTraversal = (deps: IDualTypeTraversalDeps) => IDualTypeTraversal;
+
+interface IDualTypeNodeDeps {
+  createNode: (type: MonsterType) => TNodeLiteral;
+  unique: <T>(array: T[]) => T[];
+  intersection: <T>(a: T[], b: T[]) => T[];
+}
+interface IDualTypeNode {
+  createMergedNode: (query: MonsterType[]) => TNodeLiteral;
+}
+
+type TDualTypeNode = (deps: IDualTypeNodeDeps) => IDualTypeNode;
+
+interface IDualTypeUserInputDeps {
+  createMergedNode: (query: MonsterType[]) => TNodeLiteral;
+}
+
+interface IDualTypeUserInput {
+  checkUserInput: (
+    query: MonsterType[][]
+  ) => [boolean, MonsterType[][], MonsterType[]];
+}
+
+type TDualUserInput = (deps: IDualTypeUserInputDeps) => IDualTypeUserInput;
 
 interface IUserInputDeps {
   getWeaknesses: TGetWeaknesses;
@@ -41,7 +79,7 @@ interface ITraversal {
 type TTraversal = (deps: ITraversalDeps) => ITraversal;
 
 type TNodeLiteral = Map<
-  "strengths" | "weaknesses" | "resistances" | "resistedBy",
+  "strengths" | "weaknesses" | "resistances" | "resistedBy" | "self",
   MonsterType[]
 >;
 
@@ -151,8 +189,8 @@ interface IOptions {
 }
 
 type TGetIdealTeam = (
-  query: MonsterType[]
-) => [MonsterType[], MonsterType[], MonsterType[]];
+  query: MonsterType[][]
+) => [MonsterType[], MonsterType[][], MonsterType[]];
 interface ITeamBuilderDeps {
   Weaknesses: TWeaknesses;
   Resistances: TResistances;
@@ -163,6 +201,9 @@ interface ITeamBuilderDeps {
   Node: TNode;
   baseTypes: IBaseTypesDeps;
   UserInput: TUserInput;
+  DualTypeUserInput: TDualUserInput;
+  DualTypeNode: TDualTypeNode;
+  DualTypeTraversal: TDualTypeTraversal;
 }
 function TeamBuilder(deps: ITeamBuilderDeps): TGetIdealTeam {
   const {
@@ -174,7 +215,9 @@ function TeamBuilder(deps: ITeamBuilderDeps): TGetIdealTeam {
     Node,
     Strengths,
     Traversal,
-    UserInput,
+    DualTypeUserInput,
+    DualTypeNode,
+    DualTypeTraversal,
   } = deps;
   const { unique, intersection, defenseChart: typeChart } = baseTypes;
   const { getWeaknesses, getResistances } = Defense({
@@ -189,16 +232,23 @@ function TeamBuilder(deps: ITeamBuilderDeps): TGetIdealTeam {
     getResistedBy,
     getStrengths,
   });
-  const { getCompliments } = Traversal({ createNode, unique, intersection });
-  const { checkUserInput } = UserInput({ getWeaknesses });
+  const { byCompliment } = Traversal({ createNode, unique, intersection });
+  const { createMergedNode } = DualTypeNode({
+    createNode,
+    unique,
+    intersection,
+  });
+  const { checkUserInput } = DualTypeUserInput({ createMergedNode });
+  const { getCompliments } = DualTypeTraversal({
+    createMergedNode,
+    byCompliment,
+  });
 
   const getIdealTeam = (
-    query: MonsterType[]
-  ): [MonsterType[], MonsterType[], MonsterType[]] => {
+    query: MonsterType[][]
+  ): [MonsterType[], MonsterType[][], MonsterType[]] => {
     const [_isValid, offendingTypes, sharedWeakness] = checkUserInput(query);
-    const results = unique(
-      query.flatMap(getCompliments).flatMap(getCompliments)
-    );
+    const results = unique(query.flatMap(getCompliments));
     return [results, offendingTypes, sharedWeakness];
   };
 
