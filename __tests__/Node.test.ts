@@ -11,7 +11,7 @@ const { getWeaknesses, getResistances } = Defense({
   Weaknesses,
   Resistances,
 });
-const { getStrengths, getResistedBy } = Offense({
+const { getStrengths, getResistedBy, getNeutral } = Offense({
   typeChart: baseTypes.defenseChart,
   Strengths,
 });
@@ -20,6 +20,7 @@ const { create } = Node({
   getWeaknesses,
   getResistances,
   getResistedBy,
+  getNeutral,
 });
 
 describe("type node creation", () => {

@@ -1,7 +1,12 @@
 import type { Types as MonsterType } from "./types";
 
 type TNode = Map<
-  "strengths" | "weaknesses" | "resistances" | "resistedBy" | "self",
+  | "strengths"
+  | "weaknesses"
+  | "resistances"
+  | "resistedBy"
+  | "self"
+  | "neutral",
   MonsterType[]
 >;
 

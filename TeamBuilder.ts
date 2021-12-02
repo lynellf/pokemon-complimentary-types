@@ -5,6 +5,19 @@ type TType = [MonsterType, number];
 type TByValue = (value: number) => (type: TType) => boolean;
 type TGetWeaknesses = (type: MonsterType) => MonsterType[];
 
+interface ITypeCoverageDeps {
+  createMergedNode: (query: MonsterType[]) => TNodeLiteral;
+  unique: <T>(arr: T[]) => T[];
+  intersection: <T>(arr1: T[], arr2: T[]) => T[];
+}
+interface ITypeCoverage {
+  findCoverageGaps: (
+    query: MonsterType[][]
+  ) => [MonsterType[], MonsterType[][]];
+}
+
+type TTypeCoverage = (deps: ITypeCoverageDeps) => ITypeCoverage;
+
 interface IDualTypeTraversalDeps {
   byCompliment: (
     results: MonsterType[],
@@ -79,7 +92,12 @@ interface ITraversal {
 type TTraversal = (deps: ITraversalDeps) => ITraversal;
 
 type TNodeLiteral = Map<
-  "strengths" | "weaknesses" | "resistances" | "resistedBy" | "self",
+  | "strengths"
+  | "weaknesses"
+  | "resistances"
+  | "resistedBy"
+  | "self"
+  | "neutral",
   MonsterType[]
 >;
 
@@ -89,6 +107,7 @@ interface IStrengthDeps {
 interface IStrengths {
   getStrengths: (type: MonsterType) => MonsterType[];
   getResistedBy: (type: MonsterType) => MonsterType[];
+  getNeutral: (type: MonsterType) => MonsterType[];
 }
 
 type TStrengths = (deps: IStrengthDeps) => IStrengths;
@@ -100,6 +119,7 @@ interface IOffenseDeps {
 interface IOffense {
   getStrengths: (type: MonsterType) => MonsterType[];
   getResistedBy: (type: MonsterType) => MonsterType[];
+  getNeutral: (type: MonsterType) => MonsterType[];
 }
 
 type TOffense = (deps: IOffenseDeps) => IOffense;
@@ -109,6 +129,7 @@ interface INodeDeps {
   getWeaknesses: (type: MonsterType) => MonsterType[];
   getResistances: (type: MonsterType) => MonsterType[];
   getResistedBy: (type: MonsterType) => MonsterType[];
+  getNeutral: (type: MonsterType) => MonsterType[];
 }
 
 interface INode {
@@ -190,7 +211,7 @@ interface IOptions {
 
 type TGetIdealTeam = (
   query: MonsterType[][]
-) => [MonsterType[], MonsterType[][], MonsterType[]];
+) => [MonsterType[], MonsterType[][], MonsterType[], MonsterType[]];
 interface ITeamBuilderDeps {
   Weaknesses: TWeaknesses;
   Resistances: TResistances;
@@ -204,6 +225,7 @@ interface ITeamBuilderDeps {
   DualTypeUserInput: TDualUserInput;
   DualTypeNode: TDualTypeNode;
   DualTypeTraversal: TDualTypeTraversal;
+  TypeCoverage: TTypeCoverage;
 }
 function TeamBuilder(deps: ITeamBuilderDeps): TGetIdealTeam {
   const {
@@ -218,6 +240,7 @@ function TeamBuilder(deps: ITeamBuilderDeps): TGetIdealTeam {
     DualTypeUserInput,
     DualTypeNode,
     DualTypeTraversal,
+    TypeCoverage,
   } = deps;
   const { unique, intersection, defenseChart: typeChart } = baseTypes;
   const { getWeaknesses, getResistances } = Defense({
@@ -225,12 +248,16 @@ function TeamBuilder(deps: ITeamBuilderDeps): TGetIdealTeam {
     Resistances,
     baseTypes,
   });
-  const { getStrengths, getResistedBy } = Offense({ typeChart, Strengths });
+  const { getStrengths, getResistedBy, getNeutral } = Offense({
+    typeChart,
+    Strengths,
+  });
   const { create: createNode } = Node({
     getResistances,
     getWeaknesses,
     getResistedBy,
     getStrengths,
+    getNeutral,
   });
   const { byCompliment } = Traversal({ createNode, unique, intersection });
   const { createMergedNode } = DualTypeNode({
@@ -244,12 +271,19 @@ function TeamBuilder(deps: ITeamBuilderDeps): TGetIdealTeam {
     byCompliment,
   });
 
+  const { findCoverageGaps } = TypeCoverage({
+    createMergedNode,
+    intersection,
+    unique,
+  });
+
   const getIdealTeam = (
     query: MonsterType[][]
-  ): [MonsterType[], MonsterType[][], MonsterType[]] => {
+  ): [MonsterType[], MonsterType[][], MonsterType[], MonsterType[]] => {
     const [_isValid, offendingTypes, sharedWeakness] = checkUserInput(query);
-    const results = unique(query.flatMap(getCompliments));
-    return [results, offendingTypes, sharedWeakness];
+    const [gaps, suggestions] = findCoverageGaps(query);
+    const results = unique([...query, ...suggestions].flatMap(getCompliments));
+    return [results, offendingTypes, sharedWeakness, gaps];
   };
 
   return getIdealTeam;

@@ -10,6 +10,7 @@ import UserInput from "./UserInput";
 import DualTypeNode from "./DualTypeNode";
 import DualTypeTraversal from "./DualTypeTraversal";
 import DualTypeUserInput from "./DualTypeUserInput";
+import TypeCoverage from "./TypeCoverage";
 import { baseTypes } from "./types";
 
 const getIdealTeam = TeamBuilder({
@@ -25,25 +26,35 @@ const getIdealTeam = TeamBuilder({
   DualTypeNode,
   DualTypeTraversal,
   DualTypeUserInput,
+  TypeCoverage,
 });
 
 function main() {
   const query: any = [
+    ["grass", "ground"],
+    ["electric"],
+    ["water", "flying"],
+    ["normal"],
+    ["ghost"],
+    // ["fire", "dark"],
     // ["fire", "fighting"],
     // ["water", "flying"],
     // ["poison", "dark"],
     // ["psychic"],
     // ["ground", "flying"],
-    // ["grass", "ice"],
+    // ["ice"],
     // ["psychic", "steel"],
     // ["dragon", "steel"],
-    ["psychic"],
+    // ["psychic"],
+    // ["normal"],
+    // ["water", "fairy"],
     // ["water"],
     // ["psychic", "steel"],
     // ["dragon", "steel"],
     // ["ground", "dragon"],
     // ["fairy", "flying"],
     // ["grass", "poison"],
+    // ["bug", "fighting"],
   ];
   // const query: any = [
   //   "water",
@@ -55,8 +66,8 @@ function main() {
   //   "ice",
   //   "grass",
   // ];
-  const [results, overlap, sharedWeakness] = getIdealTeam(query);
-
+  const [results, overlap, sharedWeakness, gaps] = getIdealTeam(query);
+  console.log({ gaps });
   if (overlap.length) {
     console.log("query:", query);
     console.log("Overlapping inputs:", overlap);

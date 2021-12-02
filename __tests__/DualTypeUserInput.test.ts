@@ -16,7 +16,7 @@ const { getWeaknesses, getResistances } = Defense({
   Resistances,
 });
 
-const { getStrengths, getResistedBy } = Offense({
+const { getStrengths, getResistedBy, getNeutral } = Offense({
   typeChart: baseTypes.defenseChart,
   Strengths,
 });
@@ -26,6 +26,7 @@ const { create: createNode } = Node({
   getWeaknesses,
   getResistances,
   getResistedBy,
+  getNeutral,
 });
 
 const { createMergedNode } = DualTypeNode({ createNode, unique, intersection });

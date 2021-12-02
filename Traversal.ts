@@ -1,28 +1,40 @@
-import type { Types } from "./types";
+import type { Types as MonsterType } from "./types";
 
 type TNode = Map<
-  "strengths" | "weaknesses" | "resistances" | "resistedBy" | "self",
-  Types[]
+  | "strengths"
+  | "weaknesses"
+  | "resistances"
+  | "resistedBy"
+  | "self"
+  | "neutral",
+  MonsterType[]
 >;
 
 interface ITraversalDeps {
-  createNode: (type: Types) => TNode;
+  createNode: (type: MonsterType) => TNode;
   unique: <T>(array: T[]) => T[];
   intersection: <T>(a: T[], b: T[]) => T[];
 }
 
 interface ITraversal {
-  byCompliment: (results: Types[], weakness: Types) => Types[];
-  getCompliments: (query: Types, index?: number, queries?: Types[]) => Types[];
+  byCompliment: (
+    results: MonsterType[],
+    weakness: MonsterType
+  ) => MonsterType[];
+  getCompliments: (
+    query: MonsterType,
+    index?: number,
+    queries?: MonsterType[]
+  ) => MonsterType[];
 }
 
 interface ISharedWeaknessesDeps {
-  createNode: (type: Types) => TNode;
+  createNode: (type: MonsterType) => TNode;
   intersection: <T>(a: T[], b: T[]) => T[];
-  badMatchups: Types[];
+  badMatchups: MonsterType[];
 }
 export const bySharedWeaknesses =
-  (deps: ISharedWeaknessesDeps) => (compliment: Types) => {
+  (deps: ISharedWeaknessesDeps) => (compliment: MonsterType) => {
     const { createNode, intersection, badMatchups } = deps;
     const compNode = createNode(compliment);
     const compWeaknesses = compNode.get("weaknesses");
@@ -31,13 +43,13 @@ export const bySharedWeaknesses =
   };
 
 interface INearestMatchDeps {
-  createNode: (type: Types) => TNode;
+  createNode: (type: MonsterType) => TNode;
   unique: <T>(array: T[]) => T[];
-  results: Types[];
+  results: MonsterType[];
   intersection: <T>(a: T[], b: T[]) => T[];
 }
 export const byNearestGoodMatchup =
-  (deps: INearestMatchDeps) => (potentialCompliment: Types) => {
+  (deps: INearestMatchDeps) => (potentialCompliment: MonsterType) => {
     const { createNode, unique, intersection, results } = deps;
     const matchupNode = createNode(potentialCompliment);
     const matchupWeaknesses = matchupNode.get("weaknesses");
@@ -55,7 +67,8 @@ export const byNearestGoodMatchup =
   };
 
 const lookupCompliments =
-  (deps: ITraversalDeps) => (results: Types[], badMatchup: Types) => {
+  (deps: ITraversalDeps) =>
+  (results: MonsterType[], badMatchup: MonsterType) => {
     const { createNode, unique, intersection } = deps;
     const badMatchupNode = createNode(badMatchup);
     const goodMatchups = badMatchupNode.get("weaknesses");
@@ -80,12 +93,15 @@ const lookupCompliments =
   };
 
 interface IComplimentDeps {
-  byCompliment: (results: Types[], weakness: Types) => Types[];
-  createNode: (type: Types) => TNode;
+  byCompliment: (
+    results: MonsterType[],
+    weakness: MonsterType
+  ) => MonsterType[];
+  createNode: (type: MonsterType) => TNode;
 }
 const getAllCompliments =
   (deps: IComplimentDeps) =>
-  (query: Types, _ = 0, queries: Types[] = []): Types[] => {
+  (query: MonsterType, _ = 0, queries: MonsterType[] = []): MonsterType[] => {
     const { byCompliment, createNode } = deps;
     const queryNode = createNode(query);
     const queryWeaknesses = queryNode.get("weaknesses");

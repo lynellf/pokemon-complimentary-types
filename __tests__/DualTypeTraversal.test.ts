@@ -17,7 +17,7 @@ const { getWeaknesses, getResistances } = Defense({
   baseTypes,
 });
 
-const { getStrengths, getResistedBy } = Offense({
+const { getStrengths, getResistedBy, getNeutral } = Offense({
   Strengths,
   typeChart: baseTypes.defenseChart,
 });
@@ -27,6 +27,7 @@ const { create: createNode } = Node({
   getWeaknesses,
   getStrengths,
   getResistedBy,
+  getNeutral,
 });
 
 const { byCompliment } = Traversal({

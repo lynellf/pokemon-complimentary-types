@@ -1,26 +1,33 @@
-import { Types } from "./types";
+import { Types as MonsterType } from "./types";
 
 type TNode = Map<
-  "strengths" | "weaknesses" | "resistances" | "resistedBy" | "self",
-  Types[]
+  | "strengths"
+  | "weaknesses"
+  | "resistances"
+  | "resistedBy"
+  | "self"
+  | "neutral",
+  MonsterType[]
 >;
 
 interface INodeDeps {
-  getStrengths: (type: Types) => Types[];
-  getWeaknesses: (type: Types) => Types[];
-  getResistances: (type: Types) => Types[];
-  getResistedBy: (type: Types) => Types[];
+  getStrengths: (type: MonsterType) => MonsterType[];
+  getWeaknesses: (type: MonsterType) => MonsterType[];
+  getResistances: (type: MonsterType) => MonsterType[];
+  getResistedBy: (type: MonsterType) => MonsterType[];
+  getNeutral: (type: MonsterType) => MonsterType[];
 }
 
 interface INode {
-  create: (type: Types) => TNode;
+  create: (type: MonsterType) => TNode;
 }
 
 const node =
   (deps: INodeDeps) =>
-  (type: Types): TNode =>
+  (type: MonsterType): TNode =>
     new Map([
       ["self", [type]],
+      ["neutral", deps.getNeutral(type)],
       ["resistedBy", deps.getResistedBy(type)],
       ["strengths", deps.getStrengths(type)],
       ["weaknesses", deps.getWeaknesses(type)],
