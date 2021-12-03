@@ -19,7 +19,7 @@ export const byFreqency = (
 
 export const byThreshold =
   (max: number) =>
-  ([_, count]) =>
+  ([_, count]: [MonsterType, number]) =>
     count >= max;
 
 export const inspectWeaknesses =
@@ -38,7 +38,8 @@ export const inspectWeaknesses =
 
     const offendingTypes = weaknesses
       .map((weaknessArr, i) =>
-        weaknessArr.find((type) => frequencyTable.get(type) >= 2) !== undefined
+        weaknessArr.find((type) => frequencyTable.get(type) ?? -1 >= 2) !==
+        undefined
           ? i
           : -1
       )

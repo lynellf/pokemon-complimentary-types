@@ -1,0 +1,24 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.lookupNeutral = exports.lookupDisadvantages = exports.lookupAdvantages = exports.byKeyname = exports.byNeutral = exports.byDisadvantage = exports.byAdvantage = void 0;
+const byAdvantage = (type) => ([_, table]) => { var _a; return ((_a = table.get(type)) !== null && _a !== void 0 ? _a : -1) >= 2; };
+exports.byAdvantage = byAdvantage;
+const byDisadvantage = (type) => ([_, table]) => { var _a; return ((_a = table.get(type)) !== null && _a !== void 0 ? _a : 2) <= 0.5; };
+exports.byDisadvantage = byDisadvantage;
+const byNeutral = (type) => ([_, table]) => table.get(type) === undefined;
+exports.byNeutral = byNeutral;
+const byKeyname = (matchup) => matchup[0];
+exports.byKeyname = byKeyname;
+const lookupAdvantages = (typeChart) => (type) => Array.from(typeChart).filter((0, exports.byAdvantage)(type)).map(exports.byKeyname);
+exports.lookupAdvantages = lookupAdvantages;
+const lookupDisadvantages = (typeChart) => (type) => Array.from(typeChart).filter((0, exports.byDisadvantage)(type)).map(exports.byKeyname);
+exports.lookupDisadvantages = lookupDisadvantages;
+const lookupNeutral = (typeChart) => (type) => Array.from(typeChart).filter((0, exports.byNeutral)(type)).map(exports.byKeyname);
+exports.lookupNeutral = lookupNeutral;
+exports.default = (deps) => {
+    const { typeChart } = deps;
+    const getStrengths = (0, exports.lookupAdvantages)(typeChart);
+    const getResistedBy = (0, exports.lookupDisadvantages)(typeChart);
+    const getNeutral = (0, exports.lookupNeutral)(typeChart);
+    return { getStrengths, getResistedBy, getNeutral };
+};

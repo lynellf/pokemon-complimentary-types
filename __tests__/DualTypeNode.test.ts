@@ -33,9 +33,9 @@ const { createMergedNode } = DualTypeNode({ createNode, unique, intersection });
 describe("creating nodes for possible multi-type pokemon", () => {
   it("creates a node for a single-type pokemon", () => {
     const node = createMergedNode(["water"]);
-    const weaknesses = node.get("weaknesses");
-    const strengths = node.get("strengths");
-    const resistances = node.get("resistances");
+    const weaknesses = node.get("weaknesses") ?? [];
+    const strengths = node.get("strengths") ?? [];
+    const resistances = node.get("resistances") ?? [];
 
     expect(weaknesses.length).toBeGreaterThan(0);
     expect(strengths.length).toBeGreaterThan(0);

@@ -37,7 +37,7 @@ export const bySharedWeaknesses =
   (deps: ISharedWeaknessesDeps) => (compliment: MonsterType) => {
     const { createNode, intersection, badMatchups } = deps;
     const compNode = createNode(compliment);
-    const compWeaknesses = compNode.get("weaknesses");
+    const compWeaknesses = compNode.get("weaknesses") ?? [];
     const overlap = intersection(compWeaknesses, badMatchups);
     return overlap.length > 0;
   };
@@ -52,7 +52,7 @@ export const byNearestGoodMatchup =
   (deps: INearestMatchDeps) => (potentialCompliment: MonsterType) => {
     const { createNode, unique, intersection, results } = deps;
     const matchupNode = createNode(potentialCompliment);
-    const matchupWeaknesses = matchupNode.get("weaknesses");
+    const matchupWeaknesses = matchupNode.get("weaknesses") ?? [];
     const badMatchups = unique([...matchupWeaknesses]);
     const hasOverlappingWeaknesses =
       results.find(
@@ -71,7 +71,7 @@ const lookupCompliments =
   (results: MonsterType[], badMatchup: MonsterType) => {
     const { createNode, unique, intersection } = deps;
     const badMatchupNode = createNode(badMatchup);
-    const goodMatchups = badMatchupNode.get("weaknesses");
+    const goodMatchups = badMatchupNode.get("weaknesses") ?? [];
     const hasExistingCoverage = intersection(results, goodMatchups).length > 0;
 
     if (hasExistingCoverage) {
@@ -104,7 +104,7 @@ const getAllCompliments =
   (query: MonsterType, _ = 0, queries: MonsterType[] = []): MonsterType[] => {
     const { byCompliment, createNode } = deps;
     const queryNode = createNode(query);
-    const queryWeaknesses = queryNode.get("weaknesses");
+    const queryWeaknesses = queryNode.get("weaknesses") ?? [];
     const compliments = queryWeaknesses.reduce(byCompliment, [
       query,
       ...queries,

@@ -31,13 +31,13 @@ const mergeNodes =
   (deps: IDualTypeNodeDeps) => (acc: TNode, curr: MonsterType) => {
     const { createNode, intersection, unique } = deps;
     const currentNode = createNode(curr);
-    const currentSelf = currentNode.get("self");
-    const currentWeaknesses = currentNode.get("weaknesses");
-    const currentStrengths = currentNode.get("strengths");
-    const currentResistances = currentNode.get("resistances");
-    const currentResistedBy = currentNode.get("resistedBy");
-    const currentNeutral = currentNode.get("neutral");
-    const hasData = acc.has("resistances");
+    const currentSelf = currentNode.get("self") ?? [];
+    const currentWeaknesses = currentNode.get("weaknesses") ?? [];
+    const currentStrengths = currentNode.get("strengths") ?? [];
+    const currentResistances = currentNode.get("resistances") ?? [];
+    const currentResistedBy = currentNode.get("resistedBy") ?? [];
+    const currentNeutral = currentNode.get("neutral") ?? [];
+    const hasData = acc.has("resistances") ?? [];
 
     if (!hasData) {
       const self = acc.get("self") ?? currentSelf;
@@ -56,12 +56,12 @@ const mergeNodes =
       return acc;
     }
 
-    const self = acc.get("self");
-    const strengths = acc.get("strengths");
-    const resistances = acc.get("resistances");
-    const weaknesses = acc.get("weaknesses");
-    const resistedBy = acc.get("resistedBy");
-    const neutral = acc.get("neutral");
+    const self = acc.get("self") ?? [];
+    const strengths = acc.get("strengths") ?? [];
+    const resistances = acc.get("resistances") ?? [];
+    const weaknesses = acc.get("weaknesses") ?? [];
+    const resistedBy = acc.get("resistedBy") ?? [];
+    const neutral = acc.get("neutral") ?? [];
     const neutralTypes = intersection(
       [...currentResistances, ...resistances],
       [...currentWeaknesses, ...weaknesses]

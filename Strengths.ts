@@ -6,12 +6,12 @@ type MatchupTable = Map<MonsterType, number>;
 export const byAdvantage =
   (type: MonsterType) =>
   ([_, table]: [MonsterType, MatchupTable]): boolean =>
-    table.get(type) >= 2;
+    (table.get(type) ?? -1) >= 2;
 
 export const byDisadvantage =
   (type: MonsterType) =>
   ([_, table]: [MonsterType, MatchupTable]): boolean =>
-    table.get(type) <= 0.5;
+    (table.get(type) ?? 2) <= 0.5;
 
 export const byNeutral =
   (type: MonsterType) =>

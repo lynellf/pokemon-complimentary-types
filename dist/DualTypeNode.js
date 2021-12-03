@@ -1,0 +1,56 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const difference = (a, b) => a.filter((x) => !b.includes(x));
+const byDifference = (population) => (query) => !population.includes(query);
+const mergeNodes = (deps) => (acc, curr) => {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u;
+    const { createNode, intersection, unique } = deps;
+    const currentNode = createNode(curr);
+    const currentSelf = (_a = currentNode.get("self")) !== null && _a !== void 0 ? _a : [];
+    const currentWeaknesses = (_b = currentNode.get("weaknesses")) !== null && _b !== void 0 ? _b : [];
+    const currentStrengths = (_c = currentNode.get("strengths")) !== null && _c !== void 0 ? _c : [];
+    const currentResistances = (_d = currentNode.get("resistances")) !== null && _d !== void 0 ? _d : [];
+    const currentResistedBy = (_e = currentNode.get("resistedBy")) !== null && _e !== void 0 ? _e : [];
+    const currentNeutral = (_f = currentNode.get("neutral")) !== null && _f !== void 0 ? _f : [];
+    const hasData = (_g = acc.has("resistances")) !== null && _g !== void 0 ? _g : [];
+    if (!hasData) {
+        const self = (_h = acc.get("self")) !== null && _h !== void 0 ? _h : currentSelf;
+        const resistances = (_j = acc.get("resistances")) !== null && _j !== void 0 ? _j : currentResistances;
+        const weaknesses = (_k = acc.get("weaknesses")) !== null && _k !== void 0 ? _k : currentWeaknesses;
+        const strengths = (_l = acc.get("strengths")) !== null && _l !== void 0 ? _l : currentStrengths;
+        const resistedBy = (_m = acc.get("resistedBy")) !== null && _m !== void 0 ? _m : currentResistedBy;
+        const neutral = (_o = acc.get("neutral")) !== null && _o !== void 0 ? _o : currentNeutral;
+        acc.set("resistances", resistances);
+        acc.set("weaknesses", weaknesses);
+        acc.set("strengths", strengths);
+        acc.set("resistedBy", resistedBy);
+        acc.set("neutral", neutral);
+        acc.set("self", self);
+        return acc;
+    }
+    const self = (_p = acc.get("self")) !== null && _p !== void 0 ? _p : [];
+    const strengths = (_q = acc.get("strengths")) !== null && _q !== void 0 ? _q : [];
+    const resistances = (_r = acc.get("resistances")) !== null && _r !== void 0 ? _r : [];
+    const weaknesses = (_s = acc.get("weaknesses")) !== null && _s !== void 0 ? _s : [];
+    const resistedBy = (_t = acc.get("resistedBy")) !== null && _t !== void 0 ? _t : [];
+    const neutral = (_u = acc.get("neutral")) !== null && _u !== void 0 ? _u : [];
+    const neutralTypes = intersection([...currentResistances, ...resistances], [...currentWeaknesses, ...weaknesses]);
+    const mergedSelf = unique([...self, ...currentSelf]);
+    const mergedWeaknesses = unique([...weaknesses, ...currentWeaknesses].filter(byDifference(neutralTypes)));
+    const mergedResistances = unique([...resistances, ...currentResistances].filter(byDifference(neutralTypes)));
+    const mergedStrengths = unique([...strengths, ...currentStrengths]);
+    const mergedResistedBy = unique([...resistedBy, ...currentResistedBy]);
+    const mergedNeutral = unique([...neutral, ...currentNeutral]).filter((type) => !mergedResistances.includes(type) && !mergedResistances.includes(type));
+    acc.set("weaknesses", mergedWeaknesses);
+    acc.set("resistances", mergedResistances);
+    acc.set("strengths", mergedStrengths);
+    acc.set("self", mergedSelf);
+    acc.set("resistedBy", mergedResistedBy);
+    acc.set("neutral", mergedNeutral);
+    return acc;
+};
+const createNode = (deps) => (query) => query.reduce(mergeNodes(deps), new Map());
+exports.default = (deps) => {
+    const createMergedNode = createNode(deps);
+    return { createMergedNode };
+};
