@@ -16,5 +16,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "build": "tsc"
+  },
+  "dependencies": {
+    "ezell-toolbelt": "^1.0.2"
   }
 }
