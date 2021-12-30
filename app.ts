@@ -1,4 +1,4 @@
-import getIdealTeam from "./index";
+import getIdealTeam from "./dist/index";
 
 function main() {
   const query: any = [
