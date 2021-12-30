@@ -1,6 +1,6 @@
 {
   "name": "pokemon-complimentary-types",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Check for pokemon type coverage gaps within a team",
   "author": "Ezell Frazier",
   "main": "dist/index.js",
